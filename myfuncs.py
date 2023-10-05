@@ -4,9 +4,9 @@ import re
 import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
-username=""
-password=""
-
+username = ""
+password = ""
+my_con = None
 
 my_con = mcon.connect(
         host='localhost',
@@ -21,17 +21,17 @@ mysql=my_con.cursor()
 
 def loading():
     loadvar = 0
-    movvar = ["|", "/", "-", "\ "]
+    movvar = ["|", "/", "-", "\\"]
 
     while loadvar != 15:
         print("loading please wait" + movvar[loadvar % len(movvar)], end="\r")
-        time.sleep(0.5)
+        time.sleep(1)
         loadvar += 1
 
 
 
 # define a function to select a table.
-def select_table(mysql):
+def select_table():
     mysql.execute("SHOW TABLES")
     tables = mysql.fetchall()
 
@@ -45,23 +45,34 @@ def select_table(mysql):
         return tables[table_choice - 1][0]
     else:
         print("Invalid choice. Please select a valid table.")
-        return select_table(mysql)
+        return select_table()
 
 
 # define a function to show columns in a selected table.
-def show_columns(mysql, table_name):
+def show_columns( table_name):
     mysql.execute(f"SHOW COLUMNS FROM {table_name}")
     columns = mysql.fetchall()
 
     print(f"Columns in {table_name}:")
     for i, column in enumerate(columns, start=1):
         print(f"{i}. {column[0]}")
+    clminp = input("Enter the numbers of the columns you want (comma-separated): ")
+    numbers = input_str.split(',')
+    number_list = []
+    col_list
+    for number_str in numbers:
+        number = int(number_str)
+        number_list.append(number)
+        selected_column_names = [columns[col] for col in selected_columns]
+    for i in number_list:
+        [columns[col] for col in selected_columns]
 
 
 # define a function to specify the WHERE condition.
 def input_condition():
     condition = input("Enter the condition (e.g., 'column_name = value'): ")
     return condition
+
 
 
 # define a function to specify the ORDER BY clause.
@@ -74,14 +85,20 @@ def input_order_direction():
 
 
 # define a function to perform the SELECT query.
-def select_data(mysql, table_name):
-    show_columns(mysql, table_name)
-    columns = int(input("Enter the numbers of the columns you want (comma-separated): "))
+def select_data( table_name):
+    columns=show_columns( table_name)
+
     condition = input_condition()
     order_direction = input_order_direction()
-
-    # Construct the SQL query
-    sql_query = f"SELECT {columns} FROM {table_name} WHERE {condition} ORDER BY {order_direction};"
+    if condition=="" and columns=="":
+        sql_query = f"SELECT * FROM {table_name} ORDER BY {order_direction};"
+    elif condition=="":
+        sql_query = f"SELECT {columns} FROM {table_name} ORDER BY {order_direction};"
+    elif columns=="":
+        sql_query = f"SELECT * FROM {table_name} WHERE {condition} ORDER BY {order_direction};"
+    else:
+        sql_query = f"SELECT {columns} FROM {table_name} WHERE {condition} ORDER BY {order_direction};"
+    print(sql_query)
 
     try:
         mysql.execute(sql_query)
@@ -99,8 +116,8 @@ def select_data(mysql, table_name):
 
 
 # define a function to update data.
-def update_data(mysql, table_name):
-    show_columns(mysql, table_name)
+def update_data( table_name):
+    show_columns( table_name)
     condition = input_condition()
     new_data = input("Enter the new data (e.g., 'column_name = new_value'): ")
 
@@ -117,8 +134,8 @@ def update_data(mysql, table_name):
 
 
 # define a function to delete data.
-def delete_data(mysql, table_name):
-    show_columns(mysql, table_name)
+def delete_data( table_name):
+    show_columns( table_name)
     condition = input_condition()
 
     # Construct the SQL query
@@ -134,7 +151,7 @@ def delete_data(mysql, table_name):
 
 
 # define a function to create a new table.
-def create_table(mysql):
+def create_table():
     table_name = input("Enter the name of the new table: ")
     num_columns = int(input("Enter the number of columns: "))
 
@@ -156,7 +173,7 @@ def create_table(mysql):
 
 
 # define a function to delete a table.
-def delete_table(mysql):
+def delete_table():
     table_name = input("Enter the name of the table to delete: ")
 
     # Construct the SQL query
@@ -171,7 +188,7 @@ def delete_table(mysql):
 
 
 # define a function to alter a table.
-def alter_table(mysql):
+def alter_table():
     table_name = input("Enter the name of the table to alter: ")
     print("Available options for altering the table:")
     print("1. Add column")
@@ -212,7 +229,7 @@ def alter_table(mysql):
         print(f"Error altering table: {err}")
 
 
-def search_wildcard_in_all_tables(mysql, wildcard):
+def search_wildcard_in_all_tables( wildcard):
     mysql.execute("SHOW TABLES")
     tables = [table[0] for table in mysql.fetchall()]
 
@@ -241,9 +258,9 @@ def search_wildcard():
 
     if my_con:
         mysql = my_con.mysql()
-        search_wildcard_in_all_tables(mysql, wildcard)
+        search_wildcard_in_all_tables( wildcard)
 
-def ploting_func(mysql):
+def ploting_func():
 
         print("Possible graphs:"
               "1. Comparison of prices of medicines"
@@ -301,54 +318,51 @@ def ploting_func(mysql):
             print("it appears the data you entered is wrong,kindly re-enter it")
 # define the main function to interact with the user.
 def admnpnl_func():
-    my_con = connect_to_database()
 
-    if my_con:
-        mysql = my_con.mysql()
-        while True:
-            print("\nMenu:")
-            print("1. View data in a table")
-            print("2. Update data")
-            print("3. Delete data")
-            print("4. Create a new table")
-            print("5. Delete a table")
-            print("6. Alter a table")
-            print("7. Search for wildcard character")
-            print("8. Graphs")
-            print("9. Exit")
+    while True:
+        print("\nMenu:")
+        print("1. View data in a table")
+        print("2. Update data")
+        print("3. Delete data")
+        print("4. Create a new table")
+        print("5. Delete a table")
+        print("6. Alter a table")
+        print("7. Search for wildcard character")
+        print("8. Graphs")
+        print("9. Exit")
 
-            choice = int(input("Enter your choice: "))
+        choice = input("Enter your choice: ")
 
-            if choice == '1':
-                loading()
-                table_name = select_table(mysql)
-                select_data(mysql, table_name)
-            elif choice == '2':
-                loading()
-                table_name = select_table(mysql)
-                update_data(mysql, table_name)
-            elif choice == '3':
-                loading()
-                table_name = select_table(mysql)
-                delete_data(mysql, table_name)
-            elif choice == '4':
-                loading()
-                create_table(mysql)
-            elif choice == '5':
-                loading()
-                delete_table(mysql)
-            elif choice == '6':
-                loading()
-                alter_table(mysql)
-            elif choice == '7':
-                loading()
-                search_wildcard()
-            elif choice == '8':
-                my_con.close()
-                print("Exiting the program.")
-                break
-            else:
-                print("it appears the data you entered is wrong,kindly re-enter it")
+        if choice == '1':
+            loading()
+            table_name = select_table()
+            select_data( table_name)
+        elif choice == '2':
+            loading()
+            table_name = update_data()
+            update_data( table_name)
+        elif choice == '3':
+            loading()
+            table_name = delete_data()
+            delete_data(table_name)
+        elif choice == '4':
+            loading()
+            create_table()
+        elif choice == '5':
+            loading()
+            delete_table()
+        elif choice == '6':
+            loading()
+            alter_table()
+        elif choice == '7':
+            loading()
+            search_wildcard()
+        elif choice == '8':
+            my_con.close()
+            print("Exiting the program.")
+            break
+        else:
+            print("it appears the data you entered is wrong,kindly re-enter it")
 
 
 if __name__ == "__admnpnl_func__":
@@ -371,16 +385,16 @@ def doc():
 
             if choice == '1':
                 loading()
-                table_name = select_table(mysql)
-                select_data(mysql, table_name)
+                table_name = select_table()
+                select_data( table_name)
             elif choice == '2':
                 loading()
-                table_name = select_table(mysql)
-                update_data(mysql, table_name)
+                table_name = select_table()
+                update_data( table_name)
             elif choice == '3':
                 loading()
-                table_name = select_table(mysql)
-                delete_data(mysql, table_name)
+                table_name = select_table()
+                delete_data( table_name)
             elif choice == '4':
                 my_con.close()
                 print("Exiting the program.")
@@ -484,7 +498,7 @@ def check_dis_func():
 
 
 # Function to display available items
-def display_meds(mysql):
+def display_meds():
     mysql.execute("SELECT * FROM medication_prices")
     med = mysql.fetchall()
 
@@ -494,8 +508,8 @@ def display_meds(mysql):
 
 
 # Function to handle the buying process
-def buy_meds(mysql):
-    display_items(mysql)
+def buy_meds():
+    display_items()
     mysql.execute("select uid from data where email=%s", username)
     userid = mysql.fetchall()
     item_id = int(input("Enter the ID of the med you want to buy: "))
@@ -552,31 +566,43 @@ def pat_func():
                 mysql.execute("insert into appointment (uid,date)",(userid,dt))
             if choice==4:
                 loading()
-                display_meds(mysql)
-                buy_meds(mysql)
+                display_meds()
+                buy_meds()
             if choice==5:
                 pass
             else:
                 print("it appears the data you entered is wrong,kindly re-enter it")
 if __name__ == "__pat_func__":
     pat_func()
+def main():
+    global my_con  # Use the global my_con variable
 
-def main(mysql):
     loading()
     login(username, password)
-    mysql.execute("select catagory from data where email=%s ",username)
-    cat=mysql.fetchall
-    if cat=="admin":
-        loading()
-        admnpnl_func()
-    elif cat=="doctors":
-        loading()
-        doc()
-    elif cat == "user":
-        loading()
-        pat_func()
-    else:
-        print("it seems that an unexpected error has occured kindly inform the staff about it")
 
-if __name__ == '__main__':
+    # Check the user's category from the database and perform actions accordingly
+    if my_con:
+        mysql = my_con.cursor()
+        mysql.execute("SELECT catagory FROM data WHERE email = %s", (username,))
+        cat = mysql.fetchone()
+
+        if cat and cat[0] == "admin":
+            loading()
+            admnpnl_func()
+        elif cat and cat[0] == "doctors":
+            loading()
+            doc()
+        elif cat and cat[0] == "user":
+            loading()
+            pat_func()
+        else:
+            print("It seems that an unexpected error has occurred. Please inform the staff about it.")
+
+if __name__ == "__main__":
+    my_con = mcon.connect(
+        host='localhost',
+        user='root',
+        password='hello@123',
+        database='hospital'
+    )
     main()
